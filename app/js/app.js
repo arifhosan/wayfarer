@@ -1,5 +1,6 @@
 // Wayfarer: main controller. Loads the export, builds the model and renders every section.
 let M = null, S = null, F = 'all';
+let calNarrow = null;
 let calMetric = 'dist', busyMetric = 'dist', currentDay = null;
 let dayIdx = null, ptsByDay = null, wrappedCache = null;
 
@@ -129,6 +130,7 @@ function start() {
   seg('cal-metric', m => { calMetric = m; safe(renderCalendar); });
   seg('busy-metric', m => { busyMetric = m; safe(renderBusiest); });
   $$('#map-tools input').forEach(i => i.addEventListener('change', () => safe(renderHeat)));
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if ((document.getElementById('c-calendar').clientWidth < 640) !== calNarrow) safe(renderCalendar); }, 250); });
   $('#day-input').addEventListener('change', e => showDay(e.target.value));
   $('#day-prev').onclick = () => stepDay(-1);
   $('#day-next').onclick = () => stepDay(1);
@@ -302,7 +304,10 @@ function renderCalendar() {
   const sorted = data.map(x => x[1]).sort((a, b) => a - b);
   const p95raw = (sorted[Math.floor(sorted.length * 0.97)] || 1) ** 2, p95 = Math.sqrt(p95raw);
   const el = document.getElementById('c-calendar');
-  const cellH = 15, yearH = cellH * 7 + 34;
+  // narrow screens: fit the whole year in the width (smaller cells) instead of scrolling sideways
+  const narrow = el.clientWidth < 640;
+  calNarrow = narrow;
+  const cellH = narrow ? 9 : 15, yearH = cellH * 7 + (narrow ? 26 : 34), labelW = narrow ? 44 : 74;
   el.style.height = (years.length * yearH + 50) + 'px';
   const seq = Theme.seq();
   const c = chart('c-calendar', {
@@ -315,12 +320,15 @@ function renderCalendar() {
     visualMap: { min: 0, max: Math.max(1, p95), calculable: false, orient: 'horizontal', left: 'center', bottom: 0, itemHeight: 160, itemWidth: 10,
       inRange: { color: seq }, text: [`${fmt.n(p95raw)}+ ${unit}`, '0'], textStyle: { color: Theme.v('--muted'), fontSize: 11 } },
     calendar: years.map((y, i) => ({
-      range: String(y), top: 24 + i * yearH, left: 46, right: 8, cellSize: ['auto', cellH],
-      splitLine: { show: false }, itemStyle: { color: Theme.v('--surface-2'), borderColor: Theme.v('--surface'), borderWidth: 2 },
-      yearLabel: { show: true, position: 'left', margin: 30, color: Theme.v('--text'), fontFamily: 'Instrument Serif', fontSize: 20 },
-      dayLabel: { firstDay: 1, nameMap: ['S', 'M', 'T', 'W', 'T', 'F', 'S'], color: Theme.v('--muted'), fontSize: 9 },
-      monthLabel: { color: Theme.v('--muted'), fontSize: 10, show: i === 0 || years.length === 1 },
+      range: String(y), top: 24 + i * yearH, left: labelW, right: 4, cellSize: ['auto', cellH],
+      splitLine: { show: false }, itemStyle: { color: Theme.v('--surface-2'), borderColor: Theme.v('--surface'), borderWidth: narrow ? 1 : 2 },
+      yearLabel: { show: false },
+      dayLabel: { show: !narrow, firstDay: 1, nameMap: ['S', 'M', 'T', 'W', 'T', 'F', 'S'], color: Theme.v('--muted'), fontSize: 9 },
+      monthLabel: { color: Theme.v('--muted'), fontSize: narrow ? 8 : 10, show: i === 0 || years.length === 1, nameMap: narrow ? ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] : 'en' },
     })),
+    // year labels drawn horizontally in their own column (ECharts rotates and clips them otherwise)
+    graphic: years.map((y, i) => ({ type: 'text', left: 0, top: 24 + i * yearH + cellH * 3.5 - (narrow ? 9 : 12), silent: true,
+      style: { text: String(y), fill: Theme.v('--text'), font: `400 ${narrow ? 16 : 22}px "Instrument Serif", Georgia, serif` } })),
     series: years.map((y, i) => ({ type: 'heatmap', coordinateSystem: 'calendar', calendarIndex: i, data: data.filter(x => +x[0].slice(0, 4) === y) })),
   });
   c.off('click'); c.on('click', p => p.value && jumpToDay(p.value[0]));

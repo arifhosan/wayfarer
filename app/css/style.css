@@ -48,6 +48,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; scroll-padding-top: 76px; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
 code { font-size: .9em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
@@ -144,8 +145,6 @@ section { padding-top: 36px; }
 .card h3 { margin: 0; font-size: 14.5px; font-weight: 600; }
 .card .sub { margin: 2px 0 8px; color: var(--muted); font-size: 12.5px; }
 .chart { width: 100%; }
-#calendar .card { overflow-x: auto; }
-#c-calendar { min-width: 760px; }
 .h260 { height: 260px; } .h280 { height: 280px; } .h300 { height: 300px; } .h320 { height: 320px; } .h360 { height: 360px; }
 .h420 { height: 420px; } .h480 { height: 480px; } .h560 { height: 560px; } .h600 { height: 600px; }
 .map { width: 100%; background: var(--surface-2); }
