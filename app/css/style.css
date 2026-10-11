@@ -203,6 +203,7 @@ tr.click:hover td { background: var(--surface-2); }
 .wrap .big { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin-top: 10px; }
 .wrap .rows { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; font-size: 12.5px; }
 .wrap .rows b { display: block; font-size: 16px; }
+.wrap { padding-bottom: 56px; }
 .wrap .flags { margin-top: 12px; font-size: 20px; letter-spacing: 2px; word-break: break-all; }
 .wrap::after { content: ''; position: absolute; width: 220px; height: 220px; border-radius: 50%; right: -70px; top: -70px; background: rgba(255,255,255,.12); }
 
@@ -225,6 +226,23 @@ tr.click:hover td { background: var(--surface-2); }
 
 .tip { position: fixed; z-index: 5000; pointer-events: none; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: var(--shadow); max-width: 280px; }
 .foot { margin-top: 48px; text-align: center; }
+.hero-share { margin-top: 18px; }
+.share-btn { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.share-dlg { width: min(1040px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 24px 80px rgba(0,0,0,.35); overflow: hidden; }
+.share-dlg::backdrop { background: rgba(10,10,10,.55); backdrop-filter: blur(6px); }
+.share-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.share-head h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 26px; }
+.share-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; padding: 18px; max-height: calc(100vh - 110px); overflow: auto; }
+.share-preview { display: grid; place-items: center; background: var(--surface-2); border-radius: 14px; padding: 16px; min-height: 0; }
+#share-canvas { width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 180px); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+.share-side { display: flex; flex-direction: column; gap: 8px; }
+.share-side .lbl { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 6px; }
+.share-side select { font: inherit; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.share-side .seg { margin-bottom: 0; }
+.share-side .check { display: flex; gap: 8px; align-items: center; margin-top: 8px; cursor: pointer; }
+.share-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 10px; }
+.wrap-share { position: absolute; right: 14px; bottom: 14px; z-index: 2; font: inherit; font-size: 12px; font-weight: 600; color: #fff; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 99px; padding: 5px 11px; cursor: pointer; backdrop-filter: blur(4px); }
+.wrap-share:hover { background: rgba(255,255,255,.3); }
 .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .empty-note { position: absolute; inset: 0; display: grid; place-items: center; z-index: 600; pointer-events: none; color: var(--muted); font-size: 13.5px; }
 .empty-note span { background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 99px; box-shadow: var(--shadow); }
@@ -250,6 +268,10 @@ tr.click:hover td { background: var(--surface-2); }
   html { scroll-padding-top: 116px; }
   .g2 { grid-template-columns: 1fr; }
   .day-grid { grid-template-columns: 1fr; }
+  .share-body { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
+  #share-canvas { max-height: 52vh; }
+  .share-preview { padding: 10px; }
+  .share-dlg { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
   .h480, .h560, .h600 { height: 400px; } .h420 { height: 360px; }
   .map-tools { position: static; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; box-shadow: none; flex-wrap: wrap; justify-content: center; padding: 10px 12px; }
   .tbl td, .tbl th { white-space: nowrap; }

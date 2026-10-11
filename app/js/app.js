@@ -127,6 +127,8 @@ function start() {
     retileMaps(); render(true);
   };
   $('#reload').onclick = () => location.reload();
+  $('#share').onclick = () => Share.open(F);
+  $('#hero-share').onclick = () => Share.open(F);
   seg('cal-metric', m => { calMetric = m; safe(renderCalendar); });
   seg('busy-metric', m => { busyMetric = m; safe(renderBusiest); });
   $$('#map-tools input').forEach(i => i.addEventListener('change', () => safe(renderHeat)));
@@ -816,8 +818,10 @@ function renderWrapped() {
         <div>Biggest day<b>${best ? fmt.dateShort(best.d).replace(/ \d{4}$/, '') : '—'}</b></div>
       </div>
       <div class="flags">${s.countryList.map(c => Geo.flag(c.cc)).join('')}</div>
+      <button class="wrap-share" data-share="${y}" aria-label="Share ${y} card">⤴ Share</button>
     </div>`;
   }).join('');
+  $$('#wrapped-grid .wrap-share').forEach(b => b.onclick = e => { e.stopPropagation(); Share.open(+b.dataset.share); });
   $$('#wrapped-grid .wrap').forEach(el => el.onclick = () => { $(`#years button[data-y="${el.dataset.y}"]`).click(); document.getElementById('overview').scrollIntoView(); });
 }
 

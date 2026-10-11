@@ -56,6 +56,32 @@
   </div>
 </div>
 
+<!-- ============ SHARE DIALOG ============ -->
+<dialog id="share-dlg" class="share-dlg" aria-labelledby="share-title">
+  <div class="share-head">
+    <h3 id="share-title">Share card</h3>
+    <button class="icon-btn" id="share-close" aria-label="Close">✕</button>
+  </div>
+  <div class="share-body">
+    <div class="share-preview"><canvas id="share-canvas" width="1080" height="1350"></canvas></div>
+    <div class="share-side">
+      <label class="lbl" for="share-period">Period</label>
+      <select id="share-period"></select>
+      <span class="lbl">Format</span>
+      <div class="seg" id="share-format"><button data-m="post" class="on">Post 4:5</button><button data-m="story">Story 9:16</button></div>
+      <span class="lbl">Style</span>
+      <div class="seg" id="share-theme"><button data-m="night" class="on">Night</button><button data-m="aurora">Aurora</button><button data-m="paper">Paper</button></div>
+      <label class="check"><input type="checkbox" id="share-countries" checked> Show countries &amp; flags</label>
+      <p class="muted small">🔒 Totals and achievements only. No places, home city, routes or dates are on the card.</p>
+      <div class="share-actions">
+        <button class="btn primary" id="share-download">⤓ Download PNG</button>
+        <button class="btn" id="share-native" hidden>Share…</button>
+        <button class="btn ghost" id="share-copy" hidden>Copy image</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <!-- ============ APP ============ -->
 <div id="app" hidden>
   <div id="scroll-progress"></div>
@@ -63,6 +89,7 @@
     <div class="brand"><span class="logo-dot"></span>Wayfarer</div>
     <div id="years" class="pills" role="tablist" aria-label="Year filter"></div>
     <div class="top-actions">
+      <button id="share" class="icon-btn wide share-btn" title="Create a shareable card" aria-label="Create a shareable card">⤴<span>Share card</span></button>
       <button id="theme" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
       <button id="reload" class="icon-btn wide" title="Load another file" aria-label="Load another file">⤓<span>New file</span></button>
     </div>
@@ -96,6 +123,7 @@
           <div class="eyebrow" id="hero-range"></div>
           <h2 class="hero-title" id="hero-title"></h2>
           <p class="hero-sub" id="hero-sub"></p>
+          <button class="btn primary hero-share" id="hero-share">⤴ Create your share card</button>
         </div>
         <div class="tiles" id="tiles"></div>
         <div class="grid g2">
@@ -298,6 +326,7 @@
 <script src="js/anim.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/share.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

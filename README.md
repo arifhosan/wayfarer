@@ -61,6 +61,7 @@ Use **Forget saved file** on the start screen to remove it. **Try with demo data
 - **Hall of records**: longest day, farthest from home, most countries in a day, fastest ground speed, streaks and extreme points.
 - **Busiest days**: top days by distance, places, distance from home, countries or walking.
 - **Year in review**: one card per year.
+- **Share card**: a PNG card of your totals and achievements, for all time or any year. Post (4:5) or story (9:16), three styles, download, share or copy. It shows no places, home city, routes or dates, and countries can be hidden.
 - **Day explorer**: any day on a map, with a timeline, *Replay day* animation, "on this day" in other years and ←/→ keys.
 - **Data & coverage**: tracked days per month, time zones and Google's travel-mode affinities for you.
 
@@ -88,6 +89,7 @@ app/
   js/anim.js        GSAP motion: landing globe, reveals, count-ups, path drawing, replay
   js/app.js         controller and section renderers
   js/demo.js        synthetic demo timeline
+  js/share.js       canvas-rendered share card and achievements
   geo/              bundled country borders and cities (generated)
 tools/build_geo.py  regenerates app/geo/ from GeoNames + world-atlas
 worker/index.js     Cloudflare Worker: serves app/ under /wayfarer with security headers
