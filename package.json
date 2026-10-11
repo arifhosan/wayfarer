@@ -1,0 +1,13 @@
+{
+  "name": "wayfarer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Private, in-browser analytics for your Google Timeline export.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}

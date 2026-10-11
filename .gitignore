@@ -1,0 +1,13 @@
+# Personal location history: never commit exports
+*Timeline*.json
+location-history*.json
+Records.json
+Semantic Location History/
+Takeout/
+
+# tooling
+node_modules/
+.wrangler/
+.dev.vars
+.DS_Store
+Thumbs.db

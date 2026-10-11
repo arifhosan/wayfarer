@@ -1,0 +1,20 @@
+{
+  // Cloudflare Worker serving the static app (./app) at https://arifhosan.me/wayfarer
+  // Deploy: `npx wrangler deploy`, or connect the GitHub repo in Workers & Pages → Workers Builds.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wayfarer",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./app",
+    "binding": "ASSETS",
+    // let the worker strip the /wayfarer prefix before looking up files
+    "run_worker_first": true
+  },
+  "routes": [
+    { "pattern": "arifhosan.me/wayfarer", "zone_name": "arifhosan.me" },
+    { "pattern": "arifhosan.me/wayfarer/*", "zone_name": "arifhosan.me" }
+  ],
+  "workers_dev": true,
+  "observability": { "enabled": true }
+}

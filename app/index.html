@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wayfarer — Timeline Atlas</title>
+  <meta name="description" content="Explore your Google Timeline export: heatmaps, flights, trains, countries, records and more. Runs fully in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232a78d6'/%3E%3Cstop offset='1' stop-color='%231baf7a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='14' fill='url(%23g)'/%3E%3Cpath d='M9 20 Q16 6 23 13' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='23' cy='13' r='2.5' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
+  <meta name="theme-color" content="#0e0e0d">
+  <link rel="stylesheet" href="css/style.css">
+  <script>try { const t = localStorage.getItem('wf-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<div id="landing">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <svg id="world-dots" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="landing-inner">
+    <div class="brand-big"><span class="logo-dot"></span>Wayfarer</div>
+    <h1><span class="wl"><span class="w">Your</span></span> <span class="wl"><span class="w">life,</span></span> <span class="wl"><span class="w"><em>on</em></span></span> <span class="wl"><span class="w"><em>the</em></span></span> <span class="wl"><span class="w"><em>map.</em></span></span></h1>
+    <p class="lede">Drop your Google Timeline export and explore every walk, train, flight and country: years of movement turned into a personal atlas.</p>
+    <div class="landing-actions">
+      <label id="drop" class="drop">
+        <input id="file" type="file" accept=".json,application/json" multiple hidden>
+        <div class="drop-icon">⤓</div>
+        <div><strong>Drop your Timeline export here</strong> or click to choose</div>
+        <div class="muted small">Timeline.json (Android / iOS) or the Takeout "Semantic Location History" files: select several at once</div>
+      </label>
+      <div class="landing-btns">
+        <button id="resume" class="btn" hidden></button>
+        <button id="demo" class="btn ghost">✨ Try with demo data</button>
+        <button id="forget" class="btn ghost small" hidden>Forget saved file</button>
+      </div>
+    </div>
+    <div id="progress" hidden>
+      <div class="bar"><div id="progress-fill"></div></div>
+      <div id="progress-text" class="muted small">Reading…</div>
+    </div>
+    <div class="feature-chips">
+      <span>🔥 Heatmap</span><span>📅 Life calendar</span><span>✈️ Flights</span><span>🚆 Trains</span><span>🌍 Countries</span>
+      <span>🚶 Walking &amp; cycling</span><span>🏠 Home &amp; work</span><span>🏆 Records</span><span>🎞️ Day replay</span><span>🎁 Year in review</span>
+    </div>
+    <p class="privacy small">🔒 Runs entirely in your browser. Your location history is never uploaded anywhere.</p>
+    <details class="how small">
+      <summary>How do I get my Timeline export?</summary>
+      <p><b>Android:</b> Settings → Location → Location services → Timeline → <em>Export Timeline data</em>.<br>
+      <b>iPhone:</b> Google Maps → profile → Your Timeline → ⋯ → Location &amp; privacy settings → <em>Export Timeline data</em>.<br>
+      <b>Older Takeout:</b> takeout.google.com → Location History → unzip and select all files in <code>Semantic Location History</code>.</p>
+    </details>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+  <div id="scroll-progress"></div>
+  <header class="topbar">
+    <div class="brand"><span class="logo-dot"></span>Wayfarer</div>
+    <div id="years" class="pills" role="tablist" aria-label="Year filter"></div>
+    <div class="top-actions">
+      <button id="theme" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+      <button id="reload" class="icon-btn wide" title="Load another file" aria-label="Load another file">⤓<span>New file</span></button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidenav" id="sidenav">
+      <div id="nav-ind"></div>
+      <a href="#overview">Overview</a>
+      <a href="#map">Heatmap</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#rhythm">Rhythms</a>
+      <a href="#modes">Getting around</a>
+      <a href="#active">On foot &amp; bike</a>
+      <a href="#transit">Trains &amp; transit</a>
+      <a href="#flights">Flights</a>
+      <a href="#countries">Countries &amp; cities</a>
+      <a href="#places">Places</a>
+      <a href="#homework">Home &amp; work</a>
+      <a href="#trips">Trips</a>
+      <a href="#records">Records</a>
+      <a href="#busiest">Busiest days</a>
+      <a href="#wrapped">Year in review</a>
+      <a href="#day">Day explorer</a>
+      <a href="#quality">Data &amp; coverage</a>
+    </nav>
+
+    <main id="main">
+      <section id="overview">
+        <div class="hero">
+          <div class="eyebrow" id="hero-range"></div>
+          <h2 class="hero-title" id="hero-title"></h2>
+          <p class="hero-sub" id="hero-sub"></p>
+        </div>
+        <div class="tiles" id="tiles"></div>
+        <div class="grid g2">
+          <div class="card"><h3>Distance by mode</h3><p class="sub">Kilometres travelled in each way of getting around</p><div id="c-mode-bars" class="chart h300"></div></div>
+          <div class="card"><h3>Every year, by mode</h3><p class="sub">Kilometres per year (flights excluded so ground travel stays visible)</p><div id="c-year-mode" class="chart h300"></div></div>
+        </div>
+      </section>
+
+      <section id="map">
+        <div class="sec-head"><h2>Heatmap</h2><p>Everywhere you have been. Zoom in, the heat gets more detailed.</p></div>
+        <div class="card flush">
+          <div class="map-tools" id="map-tools">
+            <label><input type="checkbox" data-layer="heat" checked> Heat</label>
+            <label><input type="checkbox" data-layer="places"> Places</label>
+            <label><input type="checkbox" data-layer="flights"> Flights</label>
+            <label><input type="checkbox" data-layer="homes" checked> Homes</label>
+          </div>
+          <div id="m-heat" class="map h560"></div>
+        </div>
+      </section>
+
+      <section id="calendar">
+        <div class="sec-head"><h2>Calendar</h2><p>Each square is a day. Hover for details, click to open it in the Day explorer.</p></div>
+        <div class="card">
+          <div class="seg" id="cal-metric">
+            <button data-m="dist" class="on">Distance</button>
+            <button data-m="walk">Walking</button>
+            <button data-m="places">Places visited</button>
+            <button data-m="far">Distance from home</button>
+            <button data-m="moveH">Hours moving</button>
+          </div>
+          <div id="c-calendar" class="chart"></div>
+        </div>
+      </section>
+
+      <section id="rhythm">
+        <div class="sec-head"><h2>Rhythms</h2><p>When in the week and the year you move.</p></div>
+        <div class="card"><h3>Week × hour</h3><p class="sub">Minutes spent moving, by local time of day</p><div id="c-punch" class="chart h300"></div></div>
+        <div class="grid g2">
+          <div class="card"><h3>Average distance per weekday</h3><p class="sub">Km per tracked day</p><div id="c-weekday" class="chart h260"></div></div>
+          <div class="card"><h3>Average distance per month</h3><p class="sub">Km per tracked day</p><div id="c-month" class="chart h260"></div></div>
+        </div>
+      </section>
+
+      <section id="modes">
+        <div class="sec-head"><h2>Getting around</h2><p>How each mode of transport stacks up.</p></div>
+        <div class="card"><div id="mode-table"></div></div>
+        <div class="grid g2">
+          <div class="card"><h3>Time spent per mode</h3><p class="sub">Hours</p><div id="c-mode-time" class="chart h300"></div></div>
+          <div class="card"><h3>Carbon footprint (estimate)</h3><p class="sub">kg CO₂e per mode using typical per-passenger-km factors</p><div id="c-co2" class="chart h300"></div></div>
+        </div>
+        <div class="card"><h3>Monthly distance by mode</h3><p class="sub">Km per month, ground transport</p><div id="c-month-mode" class="chart h320"></div></div>
+      </section>
+
+      <section id="active">
+        <div class="sec-head"><h2>On foot &amp; by bike</h2><p>Human-powered kilometres.</p></div>
+        <div class="tiles" id="active-tiles"></div>
+        <div class="card"><h3>Walking &amp; cycling per month</h3><p class="sub">Km</p><div id="c-active-month" class="chart h300"></div></div>
+        <div class="grid g2">
+          <div class="card"><h3>Longest walks</h3><div id="t-walks"></div></div>
+          <div class="card"><h3>Longest rides</h3><div id="t-rides"></div></div>
+        </div>
+      </section>
+
+      <section id="transit">
+        <div class="sec-head"><h2>Trains &amp; transit</h2><p>Rails, buses, trams and the underground.</p></div>
+        <div class="tiles" id="transit-tiles"></div>
+        <div class="grid g2">
+          <div class="card"><h3>Top train routes</h3><p class="sub">By number of trips (city to city)</p><div id="t-routes"></div></div>
+          <div class="card"><h3>Longest train rides</h3><div id="t-trains"></div></div>
+        </div>
+        <div class="card flush"><div id="m-trains" class="map h420"></div></div>
+      </section>
+
+      <section id="flights">
+        <div class="sec-head"><h2>Flights</h2><p>Detected from your timeline. Legs marked <span class="tag">inferred</span> were reconstructed from impossible-by-land jumps.</p></div>
+        <div class="tiles" id="flight-tiles"></div>
+        <div class="card flush"><div id="m-flights" class="map h480"></div></div>
+        <div class="grid g2">
+          <div class="card"><h3>Flight log</h3><div id="t-flights" class="scroll"></div></div>
+          <div class="card"><h3>Most-flown cities</h3><div id="c-airports" class="chart h420"></div></div>
+        </div>
+      </section>
+
+      <section id="countries">
+        <div class="sec-head"><h2>Countries &amp; cities</h2><p>A day counts for a country if you were there at any point that day (flights overhead excluded).</p></div>
+        <div class="tiles" id="country-tiles"></div>
+        <div class="card flush"><div id="m-world" class="map h480"></div></div>
+        <div class="grid g2">
+          <div class="card"><h3>Countries</h3><div id="t-countries" class="scroll"></div></div>
+          <div class="card"><h3>Top cities</h3><p class="sub">Days with a visit or journey in/near the city</p><div id="c-cities" class="chart h560"></div></div>
+        </div>
+        <div class="card"><h3>Days per country per year</h3><p class="sub">Where each year was spent</p><div id="c-country-year" class="chart h360"></div></div>
+      </section>
+
+      <section id="places">
+        <div class="sec-head"><h2>Places</h2><p>Google's export has no place names, so places are labelled by city and direction from the centre. Click <span class="kbd">↗</span> to open one in Google Maps and see what it is.</p></div>
+        <div class="grid g2">
+          <div class="card"><h3>Where your time goes</h3><div id="t-places" class="scroll tall"></div></div>
+          <div class="card flush"><div id="m-places" class="map h600"></div></div>
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>Exploration</h3><p class="sub">Never-before-visited places per month</p><div id="c-newplaces" class="chart h280"></div></div>
+          <div class="card"><h3>Radius of life</h3><p class="sub">Radius of gyration per month (km, log scale): how spread out your month was</p><div id="c-gyr" class="chart h280"></div></div>
+        </div>
+      </section>
+
+      <section id="homework">
+        <div class="sec-head"><h2>Home &amp; work</h2><p>Your homes, your workplaces and the commute in between.</p></div>
+        <div class="grid g2">
+          <div class="card"><h3>Where you lived &amp; worked</h3><div id="eras"></div></div>
+          <div class="card"><h3>Time budget</h3><p class="sub">Share of tracked time</p><div id="c-budget" class="chart h300"></div></div>
+        </div>
+        <div class="tiles" id="commute-tiles"></div>
+        <div class="grid g2">
+          <div class="card"><h3>Arriving at &amp; leaving work</h3><p class="sub">Number of workdays by local time</p><div id="c-workhours" class="chart h280"></div></div>
+          <div class="card"><h3>Hours at work per week</h3><div id="c-workweek" class="chart h280"></div></div>
+        </div>
+        <div class="card"><h3>Commute duration</h3><p class="sub">Each dot is one commute (minutes); line is the monthly median</p><div id="c-commute" class="chart h300"></div></div>
+      </section>
+
+      <section id="trips">
+        <div class="sec-head"><h2>Trips</h2><p>Trips Google recognised away from home, enriched with countries and cities.</p></div>
+        <div id="trip-list" class="trip-grid"></div>
+      </section>
+
+      <section id="records">
+        <div class="sec-head"><h2>Hall of records</h2><p>Your personal bests and extremes.</p></div>
+        <div id="record-grid" class="record-grid"></div>
+      </section>
+
+      <section id="busiest">
+        <div class="sec-head"><h2>Busiest days</h2><p>The days that stood out.</p></div>
+        <div class="card">
+          <div class="seg" id="busy-metric">
+            <button data-m="dist" class="on">Most distance</button>
+            <button data-m="places">Most places</button>
+            <button data-m="far">Farthest from home</button>
+            <button data-m="cc">Most countries</button>
+            <button data-m="walk">Most walking</button>
+          </div>
+          <div id="t-busy"></div>
+        </div>
+      </section>
+
+      <section id="wrapped">
+        <div class="sec-head"><h2>Year in review</h2><p>Every year, in one card.</p></div>
+        <div id="wrapped-grid" class="wrapped-grid"></div>
+      </section>
+
+      <section id="day">
+        <div class="sec-head"><h2>Day explorer</h2><p>Relive any single day.</p></div>
+        <div class="card">
+          <div class="day-tools">
+            <button class="btn" id="day-prev">←</button>
+            <input type="date" id="day-input">
+            <button class="btn" id="day-next">→</button>
+            <button class="btn ghost" id="day-random">🎲 Random day</button>
+            <button class="btn ghost" id="day-busy">🔥 Busiest day</button>
+            <button class="btn primary" id="day-replay">▶ Replay day</button>
+            <span id="day-summary" class="muted"></span>
+          </div>
+          <div class="day-grid">
+            <div id="m-day" class="map h560"></div>
+            <div id="day-list" class="day-list"></div>
+          </div>
+          <div id="on-this-day"></div>
+        </div>
+      </section>
+
+      <section id="quality">
+        <div class="sec-head"><h2>Data &amp; coverage</h2><p>How complete your timeline is: useful context for every number above.</p></div>
+        <div class="tiles" id="quality-tiles"></div>
+        <div class="grid g2">
+          <div class="card"><h3>Tracked days per month</h3><div id="c-coverage" class="chart h280"></div></div>
+          <div class="card"><h3>Google's view of you</h3><p class="sub">Travel mode affinities from your location profile</p><div id="c-persona" class="chart h280"></div></div>
+        </div>
+      </section>
+
+      <footer class="foot muted small">Wayfarer · all processing happens locally · Country borders: Natural Earth via world-atlas · Cities: GeoNames (CC-BY) · Map tiles: © Esri, HERE, Garmin, © OpenStreetMap contributors</footer>
+    </main>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script src="geo/countries.js"></script>
+<script src="geo/cities.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/formats.js"></script>
+<script src="js/model.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
